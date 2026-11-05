@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>এন্টারপ্রাইজ এইচআর ম্যানেজমেন্ট সিস্টেম</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Bengali -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        bordercolor: '#334155',
+                        cyancustom: '#06b6d4',
+                        bluecustom: '#3b82f6',
+                    },
+                    fontFamily: {
+                        sans: ['Hind Siliguri', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            transition: all 0.3s ease;
+        }
+        .gradient-btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        /* Print styling for Payslip */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printablePayslip, #printablePayslip * {
+                visibility: visible;
+            }
+            #printablePayslip {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-cardbg border-b border-bordercolor p-4 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-users-gear text-2xl text-cyancustom"></i>
+            <h1 class="font-bold text-lg text-white">এইচআর পোটাল</h1>
+        </div>
+        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white text-xl">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="w-full md:w-64 bg-cardbg border-r border-bordercolor p-5 flex flex-col justify-between hidden md:flex shrink-0 z-40">
+        <div>
+            <!-- Brand -->
+            <div class="flex items-center gap-3 pb-6 mb-6 border-b border-bordercolor">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyancustom to-bluecustom flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-users-gear text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg leading-tight text-white">স্মার্ট এইচআর</h2>
+                    <span class="text-xs text-slate-400">এন্টারপ্রাইজ এডিশন</span>
+                </div>
+            </div>
+
+            <!-- Menu Links -->
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition text-cyancustom bg-cyan-950/40 border-l-4 border-cyancustom">
+                    <i class="fa-solid fa-chart-pie w-5"></i> ড্যাশবোর্ড
+                </button>
+                <button onclick="switchTab('employees')" id="nav-employees" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-user-group w-5"></i> কর্মচারী তালিকা
+                </button>
+                <button onclick="switchTab('attendance')" id="nav-attendance" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-calendar-check w-5"></i> দৈনিক হাজিরা
+                </button>
+                <button onclick="switchTab('leaves')" id="nav-leaves" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-envelope-open-text w-5"></i> ছুটির আবেদন
+                </button>
+                <button onclick="switchTab('payroll')" id="nav-payroll" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-file-invoice-dollar w-5"></i> পে-রোল ও বেতন
+                </button>
+                <button onclick="switchTab('notices')" id="nav-notices" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-bullhorn w-5"></i> নোটিশ বোর্ড
+                </button>
+            </nav>
+        </div>
+
+        <!-- Footer / Reset Data -->
+        <div class="pt-6 border-t border-bordercolor space-y-3">
+            <button onclick="resetToDemoData()" class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-900/50 transition">
+                <i class="fa-solid fa-rotate-right"></i> ডেমো ডাটা রিসেট
+            </button>
+            <div class="flex items-center gap-3 px-2">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-cyancustom font-bold text-sm">
+                    HR
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-white">এইচআর ম্যানেজার</p>
+                    <p class="text-[10px] text-slate-400">admin@company.com</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+        <!-- Top Title Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-cardbg/50 p-4 rounded-2xl border border-bordercolor/60">
+            <div>
+                <h1 id="pageTitle" class="text-2xl font-bold text-white tracking-wide">ড্যাশবোর্ড ওভারভিউ</h1>
+                <p id="pageSubtitle" class="text-xs text-slate-400 mt-1">আজকের সার্বিক প্রতিষ্ঠানের পরিস্থিতি এবং আপডেট</p>
+            </div>
+            <div class="flex items-center gap-3 self-end sm:self-auto">
+                <div class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl text-xs text-slate-300 flex items-center gap-2">
+                    <i class="fa-regular fa-clock text-cyancustom"></i>
+                    <span id="liveClock">--:--:--</span>
+                </div>
+                <div class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl text-xs text-slate-300 flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-bluecustom"></i>
+                    <span id="currentDateDisplay">--/--/----</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toast Container -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-emerald-500 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
+            <i class="fa-solid fa-circle-check text-lg"></i>
+            <span id="toastMsg">মেসেজ</span>
+        </div>
+
+        <!-- 1. DASHBOARD TAB -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 flex items-center justify-between shadow-sm relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-cyancustom text-7xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium mb-1">মোট কর্মী সংখ্যা</p>
+                        <h3 id="dashTotalEmp" class="text-3xl font-bold text-white">0</h3>
+                        <span class="text-[11px] text-emerald-400 flex items-center gap-1 mt-2">
+                            <i class="fa-solid fa-user-plus"></i> সক্রিয় ডাটাবেজ
+                        </span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-800/40 text-cyancustom flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 flex items-center justify-between shadow-sm relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-emerald-400 text-7xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium mb-1">আজ উপস্থিত</p>
+                        <h3 id="dashPresentToday" class="text-3xl font-bold text-emerald-400">0</h3>
+                        <span id="dashPresentPercent" class="text-[11px] text-slate-400 mt-2 block">০% উপস্থিতি</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                </div>
+
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 flex items-center justify-between shadow-sm relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-amber-400 text-7xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-user-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium mb-1">আজ ছুটি / অনুপস্থিত</p>
+                        <h3 id="dashLeaveToday" class="text-3xl font-bold text-amber-400">0</h3>
+                        <span id="dashLeavePendingCount" class="text-[11px] text-amber-400/80 mt-2 block">০টি ছুটি পেন্ডিং</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-800/40 text-amber-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-clock"></i>
+                    </div>
+                </div>
+
+                <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 flex items-center justify-between shadow-sm relative overflow-hidden group">
+                    <div class="absolute -right-2 -bottom-2 opacity-5 text-blue-400 text-7xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium mb-1">মাসিক মোট স্কেল</p>
+                        <h3 id="dashTotalPayroll" class="text-2xl font-bold text-bluecustom">৳ 0</h3>
+                        <span class="text-[11px] text-slate-400 mt-2 block">বেসিক পে-রোল হিসাব</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-950/60 border border-blue-800/40 text-bluecustom flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Charts & Actions Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Today's Attendance Overview Quick List -->
+                <div class="lg:col-span-2 bg-cardbg border border-bordercolor rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-cyancustom"></i> আজকের হাজিরা স্ট্যাটাস
+                        </h3>
+                        <button onclick="switchTab('attendance')" class="text-xs text-cyancustom hover:underline">সব দেখুন &rarr;</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 border-b border-bordercolor uppercase font-semibold">
+                                <tr>
+                                    <th class="pb-3">কর্মচারী</th>
+                                    <th class="pb-3">পদবী</th>
+                                    <th class="pb-3">ইন-টাইম</th>
+                                    <th class="pb-3">আউট-টাইম</th>
+                                    <th class="pb-3">স্ট্যাটাস</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashAttendanceTable" class="divide-y divide-bordercolor/60 text-slate-300">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Notices & Quick Pending Approvals -->
+                <div class="space-y-6">
+                    <!-- Pending Approvals Widget -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-6">
+                        <h3 class="font-semibold text-white flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> পেন্ডিং ছুটির আবেদন
+                        </h3>
+                        <div id="dashPendingLeaves" class="space-y-3">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+
+                    <!-- Latest Announcement Widget -->
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-bullhorn text-cyancustom"></i> সর্বশেষ নোটিশ
+                            </h3>
+                            <button onclick="switchTab('notices')" class="text-xs text-cyancustom hover:underline">সব নোটিশ</button>
+                        </div>
+                        <div id="dashLatestNotice" class="text-xs text-slate-300 bg-slate-900/60 p-3 rounded-xl border border-bordercolor/50">
+                            <!-- Dynamic -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. EMPLOYEES TAB -->
+        <section id="tab-employees" class="tab-content hidden space-y-6">
+            <!-- Header Controls -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-cardbg border border-bordercolor p-4 rounded-2xl">
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="employeeSearchInput" onkeyup="renderEmployeesTable()" placeholder="কর্মচারীর নাম বা পদবী খুঁজুন..." class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-cyancustom">
+                </div>
+                <button onclick="openEmployeeModal()" class="gradient-btn w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/10">
+                    <i class="fa-solid fa-plus"></i> নতুন কর্মী যুক্ত করুন
+                </button>
+            </div>
+
+            <!-- Employee List Table -->
+            <div class="bg-cardbg border border-bordercolor rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/80 text-slate-400 border-b border-bordercolor font-semibold uppercase">
+                            <tr>
+                                <th class="p-4">আইডি</th>
+                                <th class="p-4">নাম</th>
+                                <th class="p-4">পদবী</th>
+                                <th class="p-4">মোবাইল</th>
+                                <th class="p-4">যোগদানের তারিখ</th>
+                                <th class="p-4">মূল বেতন (মাসিক)</th>
+                                <th class="p-4 text-center">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody" class="divide-y divide-bordercolor/60 text-slate-300">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ATTENDANCE TAB -->
+        <section id="tab-attendance" class="tab-content hidden space-y-6">
+            <!-- Attendance Controls -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-cardbg border border-bordercolor p-4 rounded-2xl">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <label class="text-xs text-slate-400 font-medium">তারিখ নির্বাচন:</label>
+                    <input type="date" id="attendanceDatePicker" onchange="renderAttendanceTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyancustom">
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400">উপস্থিত: <b id="attSummaryPresent">0</b></span>
+                    <span class="px-3 py-1 rounded-full bg-rose-950/60 border border-rose-800/40 text-rose-400">অনুপস্থিত: <b id="attSummaryAbsent">0</b></span>
+                    <span class="px-3 py-1 rounded-full bg-amber-950/60 border border-amber-800/40 text-amber-400">ছুটি: <b id="attSummaryLeave">0</b></span>
+                </div>
+            </div>
+
+            <!-- Attendance List -->
+            <div class="bg-cardbg border border-bordercolor rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/80 text-slate-400 border-b border-bordercolor font-semibold uppercase">
+                            <tr>
+                                <th class="p-4">কর্মচারী</th>
+                                <th class="p-4">পদবী</th>
+                                <th class="p-4">স্ট্যাটাস নির্বাচন</th>
+                                <th class="p-4">ইন-টাইম</th>
+                                <th class="p-4">আউট-টাইম</th>
+                                <th class="p-4 text-center">দ্রুত অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody" class="divide-y divide-bordercolor/60 text-slate-300">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. LEAVE MANAGEMENT TAB -->
+        <section id="tab-leaves" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-cardbg border border-bordercolor p-4 rounded-2xl">
+                <div>
+                    <h3 class="font-semibold text-white">ছুটির আবেদন ও ব্যবস্থাপনা</h3>
+                    <p class="text-xs text-slate-400">কর্মচারীদের ছুটির আবেদন অনুমোদন বা বাতিল করুন</p>
+                </div>
+                <button onclick="openLeaveModal()" class="gradient-btn px-5 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> ছুটির আবেদন জমা দিন
+                </button>
+            </div>
+
+            <!-- Leaves Table -->
+            <div class="bg-cardbg border border-bordercolor rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/80 text-slate-400 border-b border-bordercolor font-semibold uppercase">
+                            <tr>
+                                <th class="p-4">কর্মচারী</th>
+                                <th class="p-4">ছুটির ধরন</th>
+                                <th class="p-4">সময়সীমা</th>
+                                <th class="p-4">কারণ</th>
+                                <th class="p-4">স্ট্যাটাস</th>
+                                <th class="p-4 text-center">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leavesTableBody" class="divide-y divide-bordercolor/60 text-slate-300">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. PAYROLL TAB -->
+        <section id="tab-payroll" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-cardbg border border-bordercolor p-4 rounded-2xl">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">মাস নির্বাচন:</label>
+                        <select id="payrollMonthSelect" onchange="renderPayrollTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyancustom">
+                            <option value="0">জানুয়ারী</option>
+                            <option value="1">ফেব্রুয়ারী</option>
+                            <option value="2">মার্চ</option>
+                            <option value="3">এপ্রিল</option>
+                            <option value="4">মে</option>
+                            <option value="5">জুন</option>
+                            <option value="6">জুলাই</option>
+                            <option value="7">আগস্ট</option>
+                            <option value="8">সেপ্টেম্বর</option>
+                            <option value="9">অক্টোবর</option>
+                            <option value="10" selected>নভেম্বর</option>
+                            <option value="11">ডিসেম্বর</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">বছর:</label>
+                        <select id="payrollYearSelect" onchange="renderPayrollTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyancustom">
+                            <option value="2025">২০২৫</option>
+                            <option value="2026" selected>২০২৬</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400">সর্বমোট পরিশোধযোগ্য পে-রোল</p>
+                    <h3 id="payrollTotalCalculated" class="text-xl font-bold text-cyancustom">৳ 0</h3>
+                </div>
+            </div>
+
+            <!-- Payroll Table -->
+            <div class="bg-cardbg border border-bordercolor rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/80 text-slate-400 border-b border-bordercolor font-semibold uppercase">
+                            <tr>
+                                <th class="p-4">কর্মচারী</th>
+                                <th class="p-4">মূল বেতন</th>
+                                <th class="p-4">অনুপস্থিতি কর্তন</th>
+                                <th class="p-4">নিট পরিশোধযোগ্য</th>
+                                <th class="p-4">পেমেন্ট স্ট্যাটাস</th>
+                                <th class="p-4 text-center">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payrollTableBody" class="divide-y divide-bordercolor/60 text-slate-300">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. NOTICES TAB -->
+        <section id="tab-notices" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-cardbg border border-bordercolor p-4 rounded-2xl">
+                <div>
+                    <h3 class="font-semibold text-white">কোম্পানি নোটিশ বোর্ড</h3>
+                    <p class="text-xs text-slate-400">সকল কর্মচারীদের জন্য প্রয়োজনীয় ঘোষণা এবং নোটিশ</p>
+                </div>
+                <button onclick="openNoticeModal()" class="gradient-btn px-5 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> নতুন নোটিশ প্রকাশ করুন
+                </button>
+            </div>
+
+            <div id="noticesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Dynamic notices cards -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========== MODALS ========== -->
+
+    <!-- 1. Employee Form Modal (Add / Edit) -->
+    <div id="employeeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-lg rounded-2xl p-6 space-y-5 relative shadow-2xl">
+            <button onclick="closeEmployeeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="empModalTitle" class="text-lg font-bold text-white border-b border-bordercolor pb-3">নতুন কর্মী যোগ করুন</h3>
+            <form id="employeeForm" onsubmit="saveEmployee(event)" class="space-y-4">
+                <input type="hidden" id="empIdInput">
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">পূর্ণ নাম *</label>
+                    <input type="text" id="empNameInput" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">পদবী (Role) *</label>
+                        <input type="text" id="empRoleInput" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">মোবাইল নম্বর *</label>
+                        <input type="text" id="empPhoneInput" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">মাসিক মূল বেতন (৳) *</label>
+                        <input type="number" id="empSalaryInput" min="0" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">যোগদানের তারিখ *</label>
+                        <input type="date" id="empJoinDateInput" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                    </div>
+                </div>
+                <div class="pt-3 flex justify-end gap-3">
+                    <button type="button" onclick="closeEmployeeModal()" class="px-4 py-2 text-xs rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800">বাতিল</button>
+                    <button type="submit" class="gradient-btn px-5 py-2 text-xs font-semibold text-white rounded-xl">সংরক্ষণ করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Leave Modal -->
+    <div id="leaveModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-lg rounded-2xl p-6 space-y-5 relative shadow-2xl">
+            <button onclick="closeLeaveModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white border-b border-bordercolor pb-3">নতুন ছুটির আবেদন</h3>
+            <form id="leaveForm" onsubmit="saveLeave(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">কর্মচারী নির্বাচন করুন *</label>
+                    <select id="leaveEmpSelect" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">ছুটির ধরন *</label>
+                        <select id="leaveTypeSelect" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                            <option value="অসুস্থতাজনিত (Sick)">অসুস্থতাজনিত (Sick)</option>
+                            <option value="নৈমিত্তিক (Casual)">নৈমিত্তিক (Casual)</option>
+                            <option value="বার্ষিক (Annual)">বার্ষিক (Annual)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">তারিখ *</label>
+                        <input type="date" id="leaveDateInput" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">ছুটির কারণ বিবরণ *</label>
+                    <textarea id="leaveReasonInput" rows="3" required placeholder="ছুটির সংক্ষেপিত কারণ লিখুন..." class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-cyancustom"></textarea>
+                </div>
+                <div class="pt-3 flex justify-end gap-3">
+                    <button type="button" onclick="closeLeaveModal()" class="px-4 py-2 text-xs rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800">বাতিল</button>
+                    <button type="submit" class="gradient-btn px-5 py-2 text-xs font-semibold text-white rounded-xl">আবেদন পাঠান</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Notice Modal -->
+    <div id="noticeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-lg rounded-2xl p-6 space-y-5 relative shadow-2xl">
+            <button onclick="closeNoticeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white border-b border-bordercolor pb-3">নতুন নোটিশ প্রকাশ</h3>
+            <form id="noticeForm" onsubmit="saveNotice(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">নোটিশের শিরোনাম *</label>
+                    <input type="text" id="noticeTitleInput" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">গুরুত্ব বা ক্যাটাগরি *</label>
+                    <select id="noticePrioritySelect" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyancustom">
+                        <option value="জরুরি (High)">জরুরি (High)</option>
+                        <option value="সাধারণ (Normal)" selected>সাধারণ (Normal)</option>
+                        <option value="তথ্যমূলক (Info)">তথ্যমূলক (Info)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">বিস্তারিত বিবরণ *</label>
+                    <textarea id="noticeContentInput" rows="4" required class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-cyancustom"></textarea>
+                </div>
+                <div class="pt-3 flex justify-end gap-3">
+                    <button type="button" onclick="closeNoticeModal()" class="px-4 py-2 text-xs rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800">বাতিল</button>
+                    <button type="submit" class="gradient-btn px-5 py-2 text-xs font-semibold text-white rounded-xl">প্রকাশ করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Payslip Printable Modal -->
+    <div id="payslipModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-cardbg border border-bordercolor w-full max-w-xl rounded-2xl p-6 space-y-6 relative shadow-2xl">
+            <button onclick="closePayslipModal()" class="no-print absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div id="printablePayslip" class="space-y-5">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-cyancustom">স্মার্ট এন্টারপ্রাইজ লিঃ</h2>
+                        <p class="text-xs text-slate-400">অফিসিয়াল বেতন স্লিপ (Payslip)</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="psMonthYear" class="text-xs font-semibold bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-slate-300">নভেম্বর ২০২৬</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-xs bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <div>
+                        <p class="text-slate-400">কর্মচারীর নাম:</p>
+                        <p id="psEmpName" class="font-bold text-white text-sm">--</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400">পদবী:</p>
+                        <p id="psEmpRole" class="font-semibold text-slate-200">--</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400">এমপ্লয়ি আইডি:</p>
+                        <p id="psEmpId" class="font-mono text-slate-300">#EMP-00</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400">মোবাইল:</p>
+                        <p id="psEmpPhone" class="text-slate-300">--</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between py-2 border-b border-slate-800">
+                        <span class="text-slate-400">মূল মাসিক বেতন (Base Salary):</span>
+                        <span id="psBaseSalary" class="font-semibold text-slate-200">৳ 0</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-slate-800">
+                        <span class="text-slate-400">অনুপস্থিতি কর্তন (Absence Deductions):</span>
+                        <span id="psDeductions" class="font-semibold text-rose-400">- ৳ 0</span>
+                    </div>
+                    <div class="flex justify-between py-3 border-b-2 border-cyancustom text-sm">
+                        <span class="font-bold text-white">সর্বমোট প্রদেয় বেতন (Net Payable):</span>
+                        <span id="psNetSalary" class="font-bold text-cyancustom text-base">৳ 0</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-[10px] text-slate-500 pt-2">
+                    <p>এটি একটি কম্পিউটারে প্রস্তুতকৃত স্বয়ংক্রিয় পে-স্লিপ।</p>
+                    <p id="psStatusBadge" class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 font-semibold border border-emerald-800/40">পরিশোধিত</p>
+                </div>
+            </div>
+
+            <div class="no-print pt-3 flex justify-end gap-3 border-t border-bordercolor">
+                <button onclick="closePayslipModal()" class="px-4 py-2 text-xs rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800">বন্ধ করুন</button>
+                <button onclick="window.print()" class="gradient-btn px-5 py-2 text-xs font-semibold text-white rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> প্রিন্ট বা পিডিএফ সেভ করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========== JAVASCRIPT LOGIC ========== -->
+    <script>
+        // Default Demo Data
+        const defaultEmployees = [
+            { id: 'EMP-101', name: 'রফিকুল ইসলাম', role: 'সিনিয়র সেলস ম্যানেজার', phone: '01711223344', salary: 35000, joinDate: '2023-01-15' },
+            { id: 'EMP-102', name: 'আরিফ আহমেদ', role: 'স্টোর এক্সিকিউটিভ', phone: '01822334455', salary: 22000, joinDate: '2023-05-10' },
+            { id: 'EMP-103', name: 'সুমাইয়া রহমান', role: 'হিসাবরক্ষক (Accountant)', phone: '01933445566', salary: 28000, joinDate: '2023-08-01' },
+            { id: 'EMP-104', name: 'কামরুল হাসান', role: 'সার্ভিস অ্যান্ড টেকনিশিয়ান', phone: '01544556677', salary: 20000, joinDate: '2024-02-20' },
+            { id: 'EMP-105', name: 'নাসরিন আক্তার', role: 'এইচআর অ্যাসিস্ট্যান্ট', phone: '01655667788', salary: 25000, joinDate: '2024-06-12' }
+        ];
+
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const defaultAttendance = [
+            { date: todayStr, empId: 'EMP-101', status: 'Present', checkIn: '09:00 AM', checkOut: '05:30 PM' },
+            { date: todayStr, empId: 'EMP-102', status: 'Present', checkIn: '09:15 AM', checkOut: '' },
+            { date: todayStr, empId: 'EMP-103', status: 'Leave', checkIn: '--', checkOut: '--' },
+            { date: todayStr, empId: 'EMP-104', status: 'Absent', checkIn: '--', checkOut: '--' },
+            { date: todayStr, empId: 'EMP-105', status: 'Present', checkIn: '08:55 AM', checkOut: '' }
+        ];
+
+        const defaultLeaves = [
+            { id: 'LV-1', empId: 'EMP-103', empName: 'সুমাইয়া রহমান', type: 'অসুস্থতাজনিত (Sick)', date: todayStr, reason: 'হঠাৎ জ্বর ও মাথা ব্যথা', status: 'Approved' },
+            { id: 'LV-2', empId: 'EMP-104', empName: 'কামরুল হাসান', type: 'নৈমিত্তিক (Casual)', date: todayStr, reason: 'পারিবারিক জরুরি কাজ', status: 'Pending' }
+        ];
+
+        const defaultNotices = [
+            { id: 'N-1', title: 'আগামী শুক্রবার বিশেষ অফিস বন্ধের ঘোষণা', priority: 'জরুরি (High)', date: todayStr, content: 'আগামী ১০ তারিখ জাতীয় ছুটি উপলক্ষে আমাদের শোরুম এবং অফিস বন্ধ থাকবে।' },
+            { id: 'N-2', title: 'মাসিক সেলস মিটিং ও পারফরম্যান্স রিভিউ', priority: 'সাধারণ (Normal)', date: '2026-11-01', content: 'সকল ডিপার্টমেন্টের কর্মচারীদের আগামী সোমবার বিকেল ৪ টায় কনফারেন্স রুমে উপস্থিত থাকার অনুরোধ করা হচ্ছে।' }
+        ];
+
+        const defaultPayrollStatus = {
+            '2026-10-EMP-101': 'Paid',
+            '2026-10-EMP-102': 'Paid'
+        };
+
+        // Local Storage State Managers
+        function loadData(key, fallback) {
+            const data = localStorage.getItem('hr_app_' + key);
+            return data ? JSON.parse(data) : fallback;
+        }
+
+        function saveData(key, value) {
+            localStorage.setItem('hr_app_' + key, JSON.stringify(value));
+        }
+
+        let employees = loadData('employees', defaultEmployees);
+        let attendance = loadData('attendance', defaultAttendance);
+        let leaves = loadData('leaves', defaultLeaves);
+        let notices = loadData('notices', defaultNotices);
+        let payrollStatus = loadData('payroll_status', defaultPayrollStatus);
+
+        // Reset App Data
+        function resetToDemoData() {
+            if (confirm('আপনি কি নিশ্চিত যে সকল ডাটা রিসেট করে ডেমো ডাটাতে ফিরে যেতে চান?')) {
+                localStorage.removeItem('hr_app_employees');
+                localStorage.removeItem('hr_app_attendance');
+                localStorage.removeItem('hr_app_leaves');
+                localStorage.removeItem('hr_app_notices');
+                localStorage.removeItem('hr_app_payroll_status');
+
+                employees = [...defaultEmployees];
+                attendance = [...defaultAttendance];
+                leaves = [...defaultLeaves];
+                notices = [...defaultNotices];
+                payrollStatus = { ...defaultPayrollStatus };
+
+                saveAllState();
+                initApp();
+                showToast('ডাটা সফলভাবে রিসেট করা হয়েছে!');
+            }
+        }
+
+        function saveAllState() {
+            saveData('employees', employees);
+            saveData('attendance', attendance);
+            saveData('leaves', leaves);
+            saveData('notices', notices);
+            saveData('payroll_status', payrollStatus);
+        }
+
+        // Initialize App on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            startClock();
+            
+            // Set current date input default values
+            document.getElementById('attendanceDatePicker').value = todayStr;
+
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('hidden');
+            });
+        });
+
+        function initApp() {
+            updateDashboardKPIs();
+            renderDashboardAttendance();
+            renderDashboardLeaves();
+            renderDashboardNotice();
+            renderEmployeesTable();
+            renderAttendanceTable();
+            renderLeavesTable();
+            renderPayrollTable();
+            renderNotices();
+        }
+
+        // Clock & Date UI
+        function startClock() {
+            const updateTime = () => {
+                const now = new Date();
+                document.getElementById('liveClock').textContent = now.toLocaleTimeString('bn-BD');
+                document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+            };
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        // Toast Notification Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('text-cyancustom', 'bg-cyan-950/40', 'border-l-4', 'border-cyancustom');
+                el.classList.add('text-slate-400');
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.add('text-cyancustom', 'bg-cyan-950/40', 'border-l-4', 'border-cyancustom');
+                activeNav.classList.remove('text-slate-400');
+            }
+
+            // Title updates
+            const titleMap = {
+                'dashboard': ['ড্যাশবোর্ড ওভারভিউ', 'আজকের সার্বিক প্রতিষ্ঠানের পরিস্থিতি এবং আপডেট'],
+                'employees': ['কর্মচারী ব্যবস্থাপনা', 'প্রতিষ্ঠানের সকল কর্মীদের তালিকা ও নতুন প্রোফাইল যোগ'],
+                'attendance': ['দৈনিক উপস্থিতি ও সময় ট্র্যাকিং', 'তারিখ অনুযায়ী কর্মচারীদের ইন-টাইম, আউট-টাইম ও স্ট্যাটাস আপগ্রেড'],
+                'leaves': ['ছুটির আবেদন ও এপ্রুভাল', 'কর্মচারীদের ছুটির রিকোয়েস্ট ম্যানেজ করার প্যানেল'],
+                'payroll': ['পে-রোল ও বেতন শিট', 'মাসিক বেতন হিসাব, অনুপস্থিতি ডিডাকশন ও ডিজিটাল স্লিপ'],
+                'notices': ['নোটিশ বোর্ড', 'প্রতিষ্ঠানের সকল অফিসিয়াল নোটিশ প্রকাশনা']
+            };
+
+            if (titleMap[tabId]) {
+                document.getElementById('pageTitle').textContent = titleMap[tabId][0];
+                document.getElementById('pageSubtitle').textContent = titleMap[tabId][1];
+            }
+
+            // Close mobile menu if open
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        }
+
+        // ================= 1. DASHBOARD LOGIC =================
+        function updateDashboardKPIs() {
+            const total = employees.length;
+            const todayLogs = attendance.filter(a => a.date === todayStr);
+            const present = todayLogs.filter(a => a.status === 'Present').length;
+            const leaveOrAbsent = todayLogs.filter(a => a.status === 'Leave' || a.status === 'Absent').length;
+            
+            const totalSalary = employees.reduce((sum, emp) => sum + Number(emp.salary || 0), 0);
+            const pendingLeaves = leaves.filter(l => l.status === 'Pending').length;
+
+            document.getElementById('dashTotalEmp').textContent = total;
+            document.getElementById('dashPresentToday').textContent = present;
+            const percent = total > 0 ? Math.round((present / total) * 100) : 0;
+            document.getElementById('dashPresentPercent').textContent = percent + '% উপস্থিতি হার';
+            document.getElementById('dashLeaveToday').textContent = leaveOrAbsent;
+            document.getElementById('dashLeavePendingCount').textContent = pendingLeaves + 'টি ছুটির আবেদন পেন্ডিং';
+            document.getElementById('dashTotalPayroll').textContent = '৳ ' + totalSalary.toLocaleString('bn-BD');
+        }
+
+        function renderDashboardAttendance() {
+            const tbody = document.getElementById('dashAttendanceTable');
+            tbody.innerHTML = '';
+            
+            const todayLogs = attendance.filter(a => a.date === todayStr);
+
+            if (employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">কোন কর্মী ডাটা নেই</td></tr>';
+                return;
+            }
+
+            employees.slice(0, 5).forEach(emp => {
+                const log = todayLogs.find(a => a.empId === emp.id) || { status: 'Not Marked', checkIn: '--', checkOut: '--' };
+                
+                let badgeClass = 'bg-slate-800 text-slate-400';
+                let statusText = 'চিহ্নিত নয়';
+                if (log.status === 'Present') { badgeClass = 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50'; statusText = 'উপস্থিত'; }
+                else if (log.status === 'Absent') { badgeClass = 'bg-rose-950/80 text-rose-400 border border-rose-800/50'; statusText = 'অনুপস্থিত'; }
+                else if (log.status === 'Leave') { badgeClass = 'bg-amber-950/80 text-amber-400 border border-amber-800/50'; statusText = 'ছুটিতে'; }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/40">
+                        <td class="py-3 font-semibold text-white">${emp.name}</td>
+                        <td class="py-3 text-slate-400">${emp.role}</td>
+                        <td class="py-3 font-mono text-xs">${log.checkIn || '--'}</td>
+                        <td class="py-3 font-mono text-xs">${log.checkOut || '--'}</td>
+                        <td class="py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderDashboardLeaves() {
+            const container = document.getElementById('dashPendingLeaves');
+            const pendingList = leaves.filter(l => l.status === 'Pending');
+
+            if (pendingList.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-2">কোন পেন্ডিং আবেদন নেই</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            pendingList.forEach(l => {
+                container.innerHTML += `
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-bordercolor/50 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-semibold text-white">${l.empName}</p>
+                            <p class="text-[11px] text-slate-400">${l.type} - ${l.date}</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="updateLeaveStatus('${l.id}', 'Approved')" class="px-2 py-1 bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800 rounded border border-emerald-700/50 text-[10px]">এপ্রুভ</button>
+                            <button onclick="updateLeaveStatus('${l.id}', 'Rejected')" class="px-2 py-1 bg-rose-900/60 text-rose-300 hover:bg-rose-800 rounded border border-rose-700/50 text-[10px]">বাতিল</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderDashboardNotice() {
+            const container = document.getElementById('dashLatestNotice');
+            if (notices.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 text-center">কোন নোটিশ নেই</p>';
+                return;
+            }
+            const latest = notices[0];
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-semibold text-white">${latest.title}</span>
+                    <span class="text-[10px] text-cyancustom">${latest.date}</span>
+                </div>
+                <p class="text-slate-400 line-clamp-2">${latest.content}</p>
+            `;
+        }
+
+        // ================= 2. EMPLOYEE MANAGEMENT LOGIC =================
+        function renderEmployeesTable() {
+            const tbody = document.getElementById('employeesTableBody');
+            const query = (document.getElementById('employeeSearchInput').value || '').toLowerCase();
+            
+            const filtered = employees.filter(e => 
+                e.name.toLowerCase().includes(query) || 
+                e.role.toLowerCase().includes(query) || 
+                e.id.toLowerCase().includes(query)
+            );
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">কোন কর্মী পাওয়া যায়নি</td></tr>';
+                return;
+            }
+
+            filtered.forEach(emp => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-4 font-mono font-semibold text-cyancustom">${emp.id}</td>
+                        <td class="p-4 font-semibold text-white">${emp.name}</td>
+                        <td class="p-4 text-slate-300">${emp.role}</td>
+                        <td class="p-4 text-slate-400">${emp.phone}</td>
+                        <td class="p-4 text-slate-400">${emp.joinDate || '--'}</td>
+                        <td class="p-4 font-semibold text-emerald-400">৳ ${Number(emp.salary).toLocaleString('bn-BD')}</td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="editEmployee('${emp.id}')" class="p-1.5 bg-blue-950 text-blue-400 hover:bg-blue-900 rounded-lg border border-blue-800/40">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteEmployee('${emp.id}')" class="p-1.5 bg-rose-950 text-rose-400 hover:bg-rose-900 rounded-lg border border-rose-800/40">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openEmployeeModal(empId = null) {
+            document.getElementById('employeeForm').reset();
+            if (empId) {
+                const emp = employees.find(e => e.id === empId);
+                if (emp) {
+                    document.getElementById('empModalTitle').textContent = 'কর্মী তথ্য এডিট করুন';
+                    document.getElementById('empIdInput').value = emp.id;
+                    document.getElementById('empNameInput').value = emp.name;
+                    document.getElementById('empRoleInput').value = emp.role;
+                    document.getElementById('empPhoneInput').value = emp.phone;
+                    document.getElementById('empSalaryInput').value = emp.salary;
+                    document.getElementById('empJoinDateInput').value = emp.joinDate;
+                }
+            } else {
+                document.getElementById('empModalTitle').textContent = 'নতুন কর্মী যোগ করুন';
+                document.getElementById('empIdInput').value = '';
+            }
+            document.getElementById('employeeModal').classList.remove('hidden');
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').classList.add('hidden');
+        }
+
+        function saveEmployee(event) {
+            event.preventDefault();
+            const id = document.getElementById('empIdInput').value;
+            const name = document.getElementById('empNameInput').value;
+            const role = document.getElementById('empRoleInput').value;
+            const phone = document.getElementById('empPhoneInput').value;
+            const salary = Number(document.getElementById('empSalaryInput').value);
+            const joinDate = document.getElementById('empJoinDateInput').value;
+
+            if (id) {
+                // Update
+                const index = employees.findIndex(e => e.id === id);
+                if (index !== -1) {
+                    employees[index] = { id, name, role, phone, salary, joinDate };
+                }
+            } else {
+                // Add New
+                const newId = 'EMP-' + (Math.floor(100 + Math.random() * 900));
+                employees.push({ id: newId, name, role, phone, salary, joinDate });
+
+                // Add default attendance entry for today
+                attendance.push({ date: todayStr, empId: newId, status: 'Present', checkIn: '09:00 AM', checkOut: '' });
+            }
+
+            saveAllState();
+            closeEmployeeModal();
+            initApp();
+            showToast(id ? 'কর্মীর তথ্য আপডেট হয়েছে!' : 'নতুন কর্মী যুক্ত করা হয়েছে!');
+        }
+
+        function editEmployee(empId) {
+            openEmployeeModal(empId);
+        }
+
+        function deleteEmployee(empId) {
+            if (confirm('আপনি কি নিশ্চিত যে এই কর্মীকে মুছে ফেলতে চান?')) {
+                employees = employees.filter(e => e.id !== empId);
+                attendance = attendance.filter(a => a.empId !== empId);
+                leaves = leaves.filter(l => l.empId !== empId);
+                saveAllState();
+                initApp();
+                showToast('কর্মীর রেকর্ড মুছে ফেলা হয়েছে!');
+            }
+        }
+
+        // ================= 3. ATTENDANCE MANAGEMENT LOGIC =================
+        function renderAttendanceTable() {
+            const selectedDate = document.getElementById('attendanceDatePicker').value || todayStr;
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '';
+
+            const dateLogs = attendance.filter(a => a.date === selectedDate);
+            
+            let countPresent = 0, countAbsent = 0, countLeave = 0;
+
+            employees.forEach(emp => {
+                let log = dateLogs.find(a => a.empId === emp.id);
+                if (!log) {
+                    log = { date: selectedDate, empId: emp.id, status: 'Present', checkIn: '', checkOut: '' };
+                }
+
+                if (log.status === 'Present') countPresent++;
+                if (log.status === 'Absent') countAbsent++;
+                if (log.status === 'Leave') countLeave++;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-4 font-semibold text-white">${emp.name}</td>
+                        <td class="p-4 text-slate-400">${emp.role}</td>
+                        <td class="p-4">
+                            <select onchange="updateAttendanceStatus('${selectedDate}', '${emp.id}', this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyancustom">
+                                <option value="Present" ${log.status === 'Present' ? 'selected' : ''}>উপস্থিত (Present)</option>
+                                <option value="Absent" ${log.status === 'Absent' ? 'selected' : ''}>অনুপস্থিত (Absent)</option>
+                                <option value="Leave" ${log.status === 'Leave' ? 'selected' : ''}>ছুটিতে (Leave)</option>
+                            </select>
+                        </td>
+                        <td class="p-4 font-mono text-slate-300">
+                            ${log.checkIn || '<span class="text-slate-600">--</span>'}
+                        </td>
+                        <td class="p-4 font-mono text-slate-300">
+                            ${log.checkOut || '<span class="text-slate-600">--</span>'}
+                        </td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="markTime('${selectedDate}', '${emp.id}', 'checkIn')" class="px-2.5 py-1 bg-emerald-950 text-emerald-400 hover:bg-emerald-900 border border-emerald-800/40 rounded-lg text-[11px] font-medium">
+                                <i class="fa-solid fa-right-to-bracket"></i> চেক ইন
+                            </button>
+                            <button onclick="markTime('${selectedDate}', '${emp.id}', 'checkOut')" class="px-2.5 py-1 bg-blue-950 text-blue-400 hover:bg-blue-900 border border-blue-800/40 rounded-lg text-[11px] font-medium">
+                                <i class="fa-solid fa-right-from-bracket"></i> চেক আউট
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('attSummaryPresent').textContent = countPresent;
+            document.getElementById('attSummaryAbsent').textContent = countAbsent;
+            document.getElementById('attSummaryLeave').textContent = countLeave;
+        }
+
+        function updateAttendanceStatus(date, empId, newStatus) {
+            let log = attendance.find(a => a.date === date && a.empId === empId);
+            if (log) {
+                log.status = newStatus;
+            } else {
+                attendance.push({ date, empId, status: newStatus, checkIn: '', checkOut: '' });
+            }
+            saveAllState();
+            updateDashboardKPIs();
+            renderDashboardAttendance();
+            showToast('হাজিরা স্ট্যাটাস আপডেট হয়েছে!');
+        }
+
+        function markTime(date, empId, type) {
+            const timeNow = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            let log = attendance.find(a => a.date === date && a.empId === empId);
+            
+            if (!log) {
+                log = { date, empId, status: 'Present', checkIn: '', checkOut: '' };
+                attendance.push(log);
+            }
+
+            if (type === 'checkIn') log.checkIn = timeNow;
+            if (type === 'checkOut') log.checkOut = timeNow;
+            log.status = 'Present';
+
+            saveAllState();
+            renderAttendanceTable();
+            renderDashboardAttendance();
+            showToast(`${type === 'checkIn' ? 'চেক-ইন' : 'চেক-আউট'} টাইম রেকর্ড করা হয়েছে!`);
+        }
+
+        // ================= 4. LEAVE MANAGEMENT LOGIC =================
+        function renderLeavesTable() {
+            const tbody = document.getElementById('leavesTableBody');
+            tbody.innerHTML = '';
+
+            if (leaves.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">কোন ছুটির আবেদন পাওয়া যায়নি</td></tr>';
+                return;
+            }
+
+            leaves.forEach(l => {
+                let statusBadge = 'bg-slate-800 text-slate-400';
+                if (l.status === 'Approved') statusBadge = 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50';
+                if (l.status === 'Rejected') statusBadge = 'bg-rose-950/80 text-rose-400 border border-rose-800/50';
+                if (l.status === 'Pending') statusBadge = 'bg-amber-950/80 text-amber-400 border border-amber-800/50';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-4 font-semibold text-white">${l.empName}</td>
+                        <td class="p-4 text-slate-300">${l.type}</td>
+                        <td class="p-4 font-mono text-slate-400">${l.date}</td>
+                        <td class="p-4 text-slate-400 max-w-xs truncate">${l.reason}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${statusBadge}">${l.status}</span></td>
+                        <td class="p-4 text-center space-x-1">
+                            ${l.status === 'Pending' ? `
+                                <button onclick="updateLeaveStatus('${l.id}', 'Approved')" class="px-2 py-1 bg-emerald-950 text-emerald-400 hover:bg-emerald-900 rounded border border-emerald-800/40 text-[11px]">এপ্রুভ</button>
+                                <button onclick="updateLeaveStatus('${l.id}', 'Rejected')" class="px-2 py-1 bg-rose-950 text-rose-400 hover:bg-rose-900 rounded border border-rose-800/40 text-[11px]">বাতিল</button>
+                            ` : '<span class="text-slate-600 text-[11px]">সম্পন্ন</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openLeaveModal() {
+            const select = document.getElementById('leaveEmpSelect');
+            select.innerHTML = '';
+            employees.forEach(e => {
+                select.innerHTML += `<option value="${e.id}">${e.name} (${e.role})</option>`;
+            });
+            document.getElementById('leaveDateInput').value = todayStr;
+            document.getElementById('leaveModal').classList.remove('hidden');
+        }
+
+        function closeLeaveModal() {
+            document.getElementById('leaveModal').classList.add('hidden');
+        }
+
+        function saveLeave(event) {
+            event.preventDefault();
+            const empId = document.getElementById('leaveEmpSelect').value;
+            const emp = employees.find(e => e.id === empId);
+            const type = document.getElementById('leaveTypeSelect').value;
+            const date = document.getElementById('leaveDateInput').value;
+            const reason = document.getElementById('leaveReasonInput').value;
+
+            const newLeave = {
+                id: 'LV-' + Date.now(),
+                empId,
+                empName: emp ? emp.name : 'Unknown',
+                type,
+                date,
+                reason,
+                status: 'Pending'
+            };
+
+            leaves.unshift(newLeave);
+            saveAllState();
+            closeLeaveModal();
+            initApp();
+            showToast('ছুটির আবেদন সফলভাবে জমা হয়েছে!');
+        }
+
+        function updateLeaveStatus(leaveId, newStatus) {
+            const l = leaves.find(item => item.id === leaveId);
+            if (l) {
+                l.status = newStatus;
+                
+                // If Approved, update attendance for that date to 'Leave'
+                if (newStatus === 'Approved') {
+                    let attLog = attendance.find(a => a.date === l.date && a.empId === l.empId);
+                    if (attLog) {
+                        attLog.status = 'Leave';
+                    } else {
+                        attendance.push({ date: l.date, empId: l.empId, status: 'Leave', checkIn: '--', checkOut: '--' });
+                    }
+                }
+
+                saveAllState();
+                initApp();
+                showToast(`ছুটির আবেদন ${newStatus === 'Approved' ? 'অনুমোদিত' : 'বাতিল'} হয়েছে!`);
+            }
+        }
+
+        // ================= 5. PAYROLL & PAYSLIP LOGIC =================
+        function renderPayrollTable() {
+            const month = document.getElementById('payrollMonthSelect').value;
+            const year = document.getElementById('payrollYearSelect').value;
+            const tbody = document.getElementById('payrollTableBody');
+            tbody.innerHTML = '';
+
+            let grandTotalNet = 0;
+
+            employees.forEach(emp => {
+                // Calculate absent days for selected month/year
+                const absentDays = attendance.filter(a => {
+                    if (a.empId !== emp.id || a.status !== 'Absent') return false;
+                    const d = new Date(a.date);
+                    return d.getMonth() == month && d.getFullYear() == year;
+                }).length;
+
+                // Simple per day deduction based on 30 days
+                const perDayRate = (emp.salary || 0) / 30;
+                const deduction = Math.round(absentDays * perDayRate);
+                const netPayable = Math.max(0, emp.salary - deduction);
+                
+                grandTotalNet += netPayable;
+
+                const statusKey = `${year}-${month}-${emp.id}`;
+                const isPaid = payrollStatus[statusKey] === 'Paid';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-4 font-semibold text-white">${emp.name}<br><span class="text-[10px] text-slate-400">${emp.role}</span></td>
+                        <td class="p-4 font-semibold text-slate-300">৳ ${emp.salary.toLocaleString('bn-BD')}</td>
+                        <td class="p-4 text-rose-400 font-semibold">- ৳ ${deduction.toLocaleString('bn-BD')} <span class="text-[10px] text-slate-500">(${absentDays} দিন)</span></td>
+                        <td class="p-4 font-bold text-cyancustom text-sm">৳ ${netPayable.toLocaleString('bn-BD')}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${isPaid ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50' : 'bg-rose-950/80 text-rose-400 border border-rose-800/50'}">
+                                ${isPaid ? 'পরিশোধিত' : 'বকেয়া'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="togglePayrollStatus('${statusKey}')" class="px-2.5 py-1 ${isPaid ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-emerald-950 text-emerald-400 hover:bg-emerald-900 border border-emerald-800/40'} rounded-lg text-[11px]">
+                                ${isPaid ? 'আনপেইড করুন' : 'পেইড মার্কার'}
+                            </button>
+                            <button onclick="generatePayslip('${emp.id}', ${emp.salary}, ${deduction}, ${netPayable}, '${statusKey}')" class="px-2.5 py-1 bg-cyan-950 text-cyancustom hover:bg-cyan-900 border border-cyan-800/40 rounded-lg text-[11px]">
+                                <i class="fa-solid fa-receipt"></i> পে-স্লিপ
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('payrollTotalCalculated').textContent = '৳ ' + grandTotalNet.toLocaleString('bn-BD');
+        }
+
+        function togglePayrollStatus(key) {
+            payrollStatus[key] = payrollStatus[key] === 'Paid' ? 'Unpaid' : 'Paid';
+            saveAllState();
+            renderPayrollTable();
+            showToast('পেমেন্ট স্ট্যাটাস পরিবর্তন করা হয়েছে!');
+        }
+
+        function generatePayslip(empId, baseSalary, deduction, netPayable, statusKey) {
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            const monthSelect = document.getElementById('payrollMonthSelect');
+            const monthText = monthSelect.options[monthSelect.selectedIndex].text;
+            const yearText = document.getElementById('payrollYearSelect').value;
+
+            document.getElementById('psMonthYear').textContent = `${monthText} ${yearText}`;
+            document.getElementById('psEmpName').textContent = emp.name;
+            document.getElementById('psEmpRole').textContent = emp.role;
+            document.getElementById('psEmpId').textContent = emp.id;
+            document.getElementById('psEmpPhone').textContent = emp.phone;
+
+            document.getElementById('psBaseSalary').textContent = '৳ ' + baseSalary.toLocaleString('bn-BD');
+            document.getElementById('psDeductions').textContent = '- ৳ ' + deduction.toLocaleString('bn-BD');
+            document.getElementById('psNetSalary').textContent = '৳ ' + netPayable.toLocaleString('bn-BD');
+
+            const isPaid = payrollStatus[statusKey] === 'Paid';
+            const badge = document.getElementById('psStatusBadge');
+            badge.textContent = isPaid ? 'পরিশোধিত (Paid)' : 'বকেয়া (Unpaid)';
+            badge.className = isPaid 
+                ? 'px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 font-semibold border border-emerald-800/40' 
+                : 'px-2 py-0.5 rounded bg-rose-950 text-rose-400 font-semibold border border-rose-800/40';
+
+            document.getElementById('payslipModal').classList.remove('hidden');
+        }
+
+        function closePayslipModal() {
+            document.getElementById('payslipModal').classList.add('hidden');
+        }
+
+        // ================= 6. NOTICES BOARD LOGIC =================
+        function renderNotices() {
+            const container = document.getElementById('noticesContainer');
+            container.innerHTML = '';
+
+            if (notices.length === 0) {
+                container.innerHTML = '<div class="col-span-2 text-center text-slate-500 py-8 bg-cardbg rounded-2xl border border-bordercolor">কোন নোটিশ প্রকাশিত হয়নি</div>';
+                return;
+            }
+
+            notices.forEach(n => {
+                let prioColor = 'bg-blue-950 text-blue-400 border-blue-800/40';
+                if (n.priority.includes('High') || n.priority.includes('জরুরি')) prioColor = 'bg-rose-950 text-rose-400 border-rose-800/40';
+
+                container.innerHTML += `
+                    <div class="bg-cardbg border border-bordercolor rounded-2xl p-5 space-y-3 relative group">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${prioColor}">${n.priority}</span>
+                            <span class="text-[11px] text-slate-400 font-mono"><i class="fa-regular fa-calendar"></i> ${n.date}</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base">${n.title}</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${n.content}</p>
+                        <div class="pt-3 border-t border-bordercolor/60 flex justify-end">
+                            <button onclick="deleteNotice('${n.id}')" class="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1">
+                                <i class="fa-solid fa-trash-can"></i> ডিলিট নোটিশ
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openNoticeModal() {
+            document.getElementById('noticeForm').reset();
+            document.getElementById('noticeModal').classList.remove('hidden');
+        }
+
+        function closeNoticeModal() {
+            document.getElementById('noticeModal').classList.add('hidden');
+        }
+
+        function saveNotice(event) {
+            event.preventDefault();
+            const title = document.getElementById('noticeTitleInput').value;
+            const priority = document.getElementById('noticePrioritySelect').value;
+            const content = document.getElementById('noticeContentInput').value;
+
+            const newNotice = {
+                id: 'N-' + Date.now(),
+                title,
+                priority,
+                content,
+                date: todayStr
+            };
+
+            notices.unshift(newNotice);
+            saveAllState();
+            closeNoticeModal();
+            renderNotices();
+            renderDashboardNotice();
+            showToast('নতুন নোটিশ প্রকাশিত হয়েছে!');
+        }
+
+        function deleteNotice(noticeId) {
+            if (confirm('আপনি কি নিশ্চিত যে এই নোটিশটি ডিলিট করতে চান?')) {
+                notices = notices.filter(n => n.id !== noticeId);
+                saveAllState();
+                renderNotices();
+                renderDashboardNotice();
+                showToast('নোটিশ মুছে ফেলা হয়েছে!');
+            }
+        }
+    </script>
+</body>
+</html>
